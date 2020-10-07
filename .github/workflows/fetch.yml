@@ -1,0 +1,38 @@
+name: Fetch Appstore Connect Info 
+
+on:
+#  schedule:
+#     - cron:  '*/15 * * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2.1.1
+        with:
+          node-version: "14.x"
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: "2.6"
+      - run: gem install bundler:2.1.4
+      - run: bundle install
+      - run: npm install 
+      - run: node src/check_app_status.js
+        env: 
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          KEY_ID: ${{ secrets.KEY_ID }}
+          ISSUER_ID: ${{ secrets.ISSUER_ID }}
+          BUNDLE_ID: ${{ secrets.BUNDLE_ID }}
+          WEBHOOKS: ${{ secrets.WEBHOOKS }}
+          LANGUAGE: "ko"
+      - name: push
+        uses: github-actions-x/commit@v2.7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-branch: 'master'
+          commit-message: 'Update AppStore Connect Info'
+          force-add: 'true'
+          files: appstore.db
+          name: Jason
+          email: dev.hwkim@gmail.com
