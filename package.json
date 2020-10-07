@@ -1,0 +1,14 @@
+{
+  "name": "appstore-connect-bot",
+  "version": "0.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@slack/client": "3.16.0",
+    "@slack/webhook": "^5.0.3",
+    "dirty": "^1.1.0",
+    "i18n": "^0.13.2",
+    "moment": "^2.29.0"
+  }
+}
