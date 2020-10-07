@@ -9,7 +9,7 @@ def getVersionInfo(app)
     version = Hash.new
 
 
-    icon_url = "https://github.com/%s/master/blob/.github/images/default.png?raw=true" % ENV['GITHUB_REPOSITORY']
+    icon_url = "https://github.com/%s/blob/master/.github/images/default.png?raw=true" % ENV['GITHUB_REPOSITORY']
     if liveVersionInfo
       icon_url = liveVersionInfo.build.icon_asset_token["templateUrl"]
       icon_url["{w}"] = "340"
