@@ -63,7 +63,7 @@ function _checkAppStatus(version) {
     var submissionDate = realm.objectForPrimaryKey("Submission", appId);
     slack.slack(currentAppInfo, submissionDate);
 
-    if (currentAppInfo.status == "Waiting For Review") {
+    if (currentAppInfo.status == "Waiting for review") {
       realm.write(() => {
         realm.create(
           "Submission",

@@ -67,8 +67,8 @@ function slackAttachment(appInfo, submissionStartDate) {
   // set elapsed time since "Waiting For Review" start
   if (
     submissionStartDate &&
-    appInfo.status != "Prepare for Submission" &&
-    appInfo.status != "Waiting For Review" &&
+    appInfo.status != "Prepare for submission" &&
+    appInfo.status != "Waiting for review" &&
     appInfo.status != "Ready for sale"
   ) {
     var elapsedHours = moment().diff(moment(submissionStartDate), "hours");
