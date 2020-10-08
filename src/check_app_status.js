@@ -1,7 +1,32 @@
 var slack = require("./slack.js");
-var dirty = require("dirty");
-var db = dirty("appstore.db");
+const Realm = require("realm");
 var debug = false;
+
+const AppInfoSchema = {
+  name: "AppInfo",
+  primaryKey: "appId",
+  properties: {
+    appId: "string",
+    name: "string",
+    version: "string",
+    status: "string",
+    iconUrl: "string",
+  },
+};
+
+const SubmissionSchema = {
+  name: "Submission",
+  primaryKey: "appId",
+  properties: {
+    appId: "string",
+    date: "date",
+  },
+};
+
+let realm = new Realm({
+  schema: [AppInfoSchema, SubmissionSchema],
+  path: "appstore.realm",
+});
 
 function checkAppStatus() {
   console.log("Fetching latest app status...");
@@ -30,14 +55,25 @@ function _checkAppStatus(version) {
     ? version["editVersion"]
     : version["liveVersion"];
 
-  var appInfoKey = "appInfo-" + currentAppInfo.appId;
-  var submissionStartkey = "submissionStart" + currentAppInfo.appId;
+  var appId = currentAppInfo.appId;
 
-  var lastAppInfo = db.get(appInfoKey);
+  var lastAppInfo = realm.objectForPrimaryKey("AppInfo", appId);
+
   if (!lastAppInfo || lastAppInfo.status != currentAppInfo.status || debug) {
-    slack.slack(currentAppInfo, db.get(submissionStartkey));
+    var submissionDate = realm.objectForPrimaryKey("Submission", appId);
+    slack.slack(currentAppInfo, submissionDate);
+
     if (currentAppInfo.status == "Waiting For Review") {
-      db.set(submissionStartkey, new Date());
+      realm.write(() => {
+        realm.create(
+          "Submission",
+          {
+            appId: appId,
+            date: new Date(),
+          },
+          Realm.UpdateMode.All
+        );
+      });
     }
   } else if (currentAppInfo) {
     console.log(
@@ -47,7 +83,19 @@ function _checkAppStatus(version) {
     console.log("Could not fetch app status");
   }
 
-  db.set(appInfoKey, currentAppInfo);
+  realm.write(() => {
+    realm.create(
+      "AppInfo",
+      {
+        appId: currentAppInfo.appId,
+        name: currentAppInfo.name,
+        version: currentAppInfo.version,
+        status: currentAppInfo.status,
+        iconUrl: currentAppInfo.iconUrl,
+      },
+      Realm.UpdateMode.All
+    );
+  });
 }
 
 checkAppStatus();
